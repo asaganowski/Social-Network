@@ -1,0 +1,98 @@
+<div class="container">
+  <h1>Sieć społecznościowa</h1>
+
+  <div class="card">
+    <h2>Znajdź ścieżkę między użytkownikami</h2>
+
+    <form (submit)="findPath()">
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Od użytkownika</label>
+          <select [(ngModel)]="pathSearch.from" name="from" required>
+            <option value="">Wybierz użytkownika</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Do użytkownika</label>
+          <select [(ngModel)]="pathSearch.to" name="to" required>
+            <option value="">Wybierz użytkownika</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="!pathSearch.from || !pathSearch.to"
+      >
+        Znajdź ścieżkę
+      </button>
+    </form>
+
+    <div *ngIf="pathResult" class="path-result">
+      <h3>Wynik:</h3>
+      <div class="alert alert-info">
+        {{ pathResult.message }}
+      </div>
+
+      <div class="path-display">
+        <div *ngFor="let node of pathResult.path; let i = index">
+          <div class="path-node">
+            {{ node.name }}
+          </div>
+          <span *ngIf="i < pathResult.path.length - 1" class="path-arrow">→</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="pathError" class="alert alert-error">
+      {{ pathError }}
+    </div>
+  </div>
+
+  <div class="card" *ngIf="networkData">
+    <h2>Statystyki sieci</h2>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-value">{{ networkData.stats.totalUsers }}</div>
+        <div class="stat-label">Użytkownicy</div>
+      </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ networkData.stats.friendshipCount }}</div>
+          <div class="stat-label">Relacje znajomości</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ networkData.stats.avgFriends.toFixed(2) }}</div>
+          <div class="stat-label">Średnia liczba znajomych</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ networkData.stats.maxFriends }}</div>
+          <div class="stat-label">Maksymalna liczba znajomych</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ networkData.stats.minFriends }}</div>
+          <div class="stat-label">Minimalna liczba znajomych</div>
+        </div>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="networkData">
+    <div class="network-text-viz">
+        <h3>Znajomości ({{ networkData.edges.length }})</h3>
+        <div class="edge-list">
+          <div *ngFor="let edge of networkData.edges" class="edge-item">
+            <span class="edge-node">{{ edge.sourceName }}</span>
+            <span class="edge-connector">↔</span>
+            <span class="edge-node">{{ edge.targetName }}</span>
+          </div>
+        </div>
+      <!-- </div> -->
+    </div>
+</div>

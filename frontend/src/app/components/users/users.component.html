@@ -1,0 +1,163 @@
+<div class="container">
+  <h1>Zarządzanie użytkownikami</h1>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>Dodaj użytkownika</h2>
+      <form (submit)="createUser()">
+        <div class="form-group">
+          <label>Imię i nazwisko</label>
+          <input
+            type="text"
+            [(ngModel)]="newUser.name"
+            name="name"
+            placeholder="Jan Kowalski"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            [(ngModel)]="newUser.email"
+            name="email"
+            placeholder="jan@example.com"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="!newUser.name || !newUser.email">
+          Dodaj użytkownika
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Dodaj relację znajomości</h2>
+      <form (submit)="createFriendship()">
+        <div class="form-group">
+          <label>Użytkownik 1</label>
+          <select [(ngModel)]="friendship.userId1" name="user1" required>
+            <option value="">Wybierz użytkownika</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Użytkownik 2</label>
+          <select [(ngModel)]="friendship.userId2" name="user2" required>
+            <option value="">Wybierz użytkownika</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.name }}
+            </option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="!friendship.userId1 || !friendship.userId2">
+          Dodaj znajomość
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="message" [class]="'alert alert-' + message.type">
+    {{ message.text }}
+  </div>
+
+  <div class="card">
+    <h2>Użytkownicy ({{ users.length }})</h2>
+
+    <div *ngIf="loading" class="loading">Ładowanie...</div>
+
+    <div *ngIf="!loading && users.length === 0" class="empty-state">
+      Brak użytkowników
+    </div>
+
+    <div *ngIf="!loading && users.length > 0" class="user-list">
+      <div *ngFor="let user of users" class="user-item">
+        <div class="user-info">
+          <h4>{{ user.name }}</h4>
+          <p>{{ user.email }}</p>
+        </div>
+        <div class="user-actions">
+          <button class="btn btn-secondary" (click)="viewUserDetails(user)">
+            Szczegóły
+          </button>
+          <button class="btn btn-danger" (click)="deleteUser(user.id)">
+            Usuń
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedUser" class="card">
+    <h2>Szczegóły: {{ selectedUser.name }}</h2>
+
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.active]="activeTab === 'friends'"
+        (click)="activeTab = 'friends'; loadFriends()"
+      >
+        Znajomi
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'recommendations'"
+        (click)="activeTab = 'recommendations'; loadRecommendations()"
+      >
+        Rekomendacje
+      </button>
+    </div>
+
+    <div *ngIf="activeTab === 'friends'">
+      <h3>Znajomi ({{ friends.length }})</h3>
+      <div *ngIf="friends.length === 0" class="empty-state">
+        Ten użytkownik nie ma jeszcze znajomych.
+      </div>
+      <div *ngIf="friends.length > 0" class="user-list">
+        <div *ngFor="let friend of friends" class="user-item">
+          <div class="user-info">
+            <h4>{{ friend.name }}</h4>
+            <p>{{ friend.email }}</p>
+          </div>
+          <div class="user-actions">
+            <button
+              class="btn btn-danger"
+              (click)="removeFriendship(selectedUser!.id, friend.id)"
+            >
+              Usuń znajomość
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'recommendations'">
+      <h3>Rekomendacje znajomych</h3>
+      <p class="text-secondary">Na podstawie wspólnych znajomych</p>
+
+      <div *ngIf="recommendations.length === 0" class="empty-state">
+        Brak rekomendacji dla tego użytkownika.
+      </div>
+
+      <div *ngIf="recommendations.length > 0" class="user-list">
+        <div *ngFor="let rec of recommendations" class="user-item">
+          <div class="user-info">
+            <h4>{{ rec.name }}</h4>
+            <p>{{ rec.email }}</p>
+            <span class="badge">{{ rec.mutualFriends }} wspólnych znajomych</span>
+          </div>
+          <div class="user-actions">
+            <button
+              class="btn btn-primary"
+              (click)="addFriendFromRecommendation(rec.id)"
+            >
+              Dodaj do znajomych
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
